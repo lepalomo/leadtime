@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "chart.js": "^4.4.9",
+    "chartjs-plugin-annotation": "^3.1.0",
+    "react-chartjs-2": "^5.3.0"
+  },
+  "devDependencies": {
+    "@types/chartjs-plugin-annotation": "^1.0.0"
+  }
+}
