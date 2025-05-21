@@ -4,6 +4,7 @@ import type { RevealOptions } from 'reveal.js';
 import 'reveal.js/dist/reveal.css';
 import 'reveal.js/dist/theme/sky.css';
 import CumulativeFlowChart from './CumulativeFlowChart';
+import CfdChart from './CfdChart';
 import LeadtimeChart from './LeadtimeChart';
 import LeadtimeBreakdownChart from './LeadtimeBreakdownChart';
 import CycletimesChart from './CycletimesChart';
@@ -191,7 +192,7 @@ const App = () => {
           <h2>Leadtime Breakdown</h2>
           <p>Garante a visualização detalhada das fases do processo</p>
           <p>Loja 1 - Possui um forno pequeno para muita demanda.</p>
-          <div style={{ width: '80%', margin: '0 auto' }}>
+          <div style={{ width: '75%', margin: '0 auto' }}>
             <LeadtimeBreakdownChart
               shouldAnimate={activeSlide === 3}
               phaseTimes={storePhaseTimes.store1}
@@ -202,7 +203,7 @@ const App = () => {
           <h2>Leadtime Breakdown</h2>
           <p>Garante a visualização detalhada das fases do processo</p>
           <p>Loja 2 - Boa estrutura para preparo, mas cada entregador sai com 4 a 6 pizzas.</p>
-          <div style={{ width: '80%', margin: '0 auto' }}>
+          <div style={{ width: '75%', margin: '0 auto' }}>
             <LeadtimeBreakdownChart
               shouldAnimate={activeSlide === 4}
               phaseTimes={storePhaseTimes.store2}
@@ -213,7 +214,7 @@ const App = () => {
           <h2>Leadtime Breakdown</h2>
           <p>Garante a visualização detalhada das fases do processo</p>
           <p>Loja 3 - O pedido entra rapidamente para preparo e sempre tem entregadores disponíveis, mas o leadtime é o mesmo das outras.</p>
-          <div style={{ width: '80%', margin: '0 auto' }}>
+          <div style={{ width: '70%', margin: '0 auto' }}>
             <LeadtimeBreakdownChart
               shouldAnimate={activeSlide === 5}
               phaseTimes={storePhaseTimes.store3}
@@ -305,11 +306,10 @@ const App = () => {
           <p>Foi implementada uma visualização conhecida como CFD, ou Diagrama de Fluxo Cumulativo, que permite que em um único gráfico se tenha dados de gargalos,
             vazão, leadtime médio, entre outros números.</p>
         </section>
-        <section>          <h2>CFD</h2>
+        <section>
+          <h2>CFD</h2>
           <div>
-            <div className="cfd-chart-container">
-              <CumulativeFlowChart />
-            </div>
+            <CfdChart />
           </div>
         </section>
         <section>

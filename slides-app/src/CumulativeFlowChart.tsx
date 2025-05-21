@@ -1,7 +1,9 @@
 import React from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
+
+import zoomPlugin from 'chartjs-plugin-zoom';
 import { Line } from 'react-chartjs-2';
-import { callback } from 'chart.js/helpers';
+
 
 ChartJS.register(
   CategoryScale,
@@ -11,7 +13,8 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
+  zoomPlugin
 );
 
 interface TimeData {
@@ -29,58 +32,117 @@ const phases = [
   'Aguardando preparo'
 ];
 
-const hours = ['19:00h', '|', '|', '|', '20:00h', '|', '|', '|', '21:00h', '|', '|', '|', '22:00h', '|', '|', '|', '23:00h', '|', '|', '|', '00:00h', '|', '|', '|'];
-const generateData = (): TimeData[] => {
+
+// --- CONFIGURAÇ
+// ÕES AJUSTÁVEIS ---
+const OPEN_HOUR = 19;
+const CLOSE_HOUR = 23;
+const MEAN_LEAD_TIME = 40; // minutos
+const LEAD_TIME_VARIANCE = 8; // minutos
+const DAILY_DEMAND = [0.5, 0.7, 1.0, 1.3, 1.7, 2.0, 2.2]; // seg a dom
+const HOURLY_DEMAND = [
+  0.08, // 19h-20h
+  0.15, // 20h-21h
+  0.22, // 21h-22h
+  0.18, // 22h-23h
+  0.10, // 23h-00h
+];
+const MEAN_ORDERS_PER_DAY = 60;
+const SAMPLE_INTERVAL = 10; // minutos
+
+// Gera slots de tempo (ex: 19:00, 19:10, ... 23:50, 00:00)
+function generateTimeSlots() {
+  const slots: string[] = [];
+  for (let h = OPEN_HOUR; h < CLOSE_HOUR; h++) {
+    for (let m = 0; m < 60; m += SAMPLE_INTERVAL) {
+      slots.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+    }
+  }
+  slots.push('00:00');
+  return slots;
+}
+
+// Gera pedidos do dia, cada um com slot de entrada e lead time aleatório
+function generateOrdersForDay(dayOfWeek: number) {
+  const demandFactor = DAILY_DEMAND[dayOfWeek];
+  const totalOrders = Math.round(MEAN_ORDERS_PER_DAY * demandFactor * (0.9 + Math.random() * 0.2));
+  const orders: { entry: number; leadTime: number }[] = [];
+  const slotsPerHour = 60 / SAMPLE_INTERVAL;
+  let orderCount = 0;
+  for (let h = 0; h < HOURLY_DEMAND.length; h++) {
+    const hourOrders = Math.round(totalOrders * HOURLY_DEMAND[h]);
+    for (let i = 0; i < hourOrders; i++) {
+      const minute = Math.floor(Math.random() * 60);
+      const entry = (h * slotsPerHour) + Math.floor(minute / SAMPLE_INTERVAL);
+      const leadTime = MEAN_LEAD_TIME + Math.round((Math.random() - 0.5) * 2 * LEAD_TIME_VARIANCE);
+      orders.push({ entry, leadTime });
+      orderCount++;
+    }
+  }
+  orders.sort((a, b) => a.entry - b.entry);
+  return orders;
+}
+
+// Gera os dados cumulativos para o gráfico (cada fase = total de pedidos que já passaram por ela)
+function generateCumulativeData(): TimeData[] {
+  const daysOfWeek = [3, 4, 5, 6, 0, 1]; // Quarta a Segunda
+  const slots = generateTimeSlots();
   const data: TimeData[] = [];
-  const daysOfWeek = [3, 4, 5, 6, 0, 1]; // Quarta a Domingo (segunda = 1)
-  
-  // Inicializar contagens cumulativas
-  let cumulativeCounts = Array(phases.length).fill(0);
+  const phaseCount = phases.length;
 
-  daysOfWeek.forEach(day => {
-    hours.forEach(hour => {
-      // Definir volume baseado no horário (pico 21h-22h)
-      let newItems = 0;
-      const hourNum = parseInt(hour);
-      if (hourNum >= 20 && hourNum <= 23) {
-        newItems = 8 + Math.floor(Math.random() * 5); // 8-12 no pico
-      } else {
-        newItems = 2 + Math.floor(Math.random() * 4); // 2-5 fora do pico
-      }
+  // Para cada dia, gerar os pedidos e registrar passagem por cada fase
+  // cumulativeByPhase[i] = total acumulado de pedidos que já passaram pela fase i até o momento
+  let cumulativeByPhase = Array(phaseCount).fill(0);
+  // Para cada slot, precisamos saber quantos pedidos passaram por cada fase até aquele momento
+  // Para isso, vamos manter um array de "passagens" por fase para cada slot
 
-      // Adicionar novos itens na primeira fase
-      cumulativeCounts[phases.length - 1] += newItems;
-
-      // Mover itens entre fases (mantendo contagem cumulativa)
-      for (let j = phases.length - 1; j > 0; j--) {
-        if (cumulativeCounts[j] > 0) {
-          const moving = Math.min(
-            Math.floor(cumulativeCounts[j] * 0.7), // 40% dos itens avançam
-            cumulativeCounts[j]
-          );
-          cumulativeCounts[j] -= moving;
-          cumulativeCounts[j - 1] += moving;
+  // Para cada dia
+  daysOfWeek.forEach((day, dayIdx) => {
+    const orders = generateOrdersForDay(day);
+    // Para cada slot de tempo
+    for (let slotIdx = 0; slotIdx < slots.length; slotIdx++) {
+      // Descobre a hora do slot atual
+      const slotHour = parseInt(slots[slotIdx].split(':')[0], 10);
+      // Para cada fase, contar quantos pedidos entram nela neste slot
+      let phaseEntries = Array(phaseCount).fill(0);
+      orders.forEach(order => {
+        const start = order.entry;
+        const end = order.entry + Math.ceil(order.leadTime / SAMPLE_INTERVAL);
+        // A partir das 23h, não entram novos pedidos (não incrementa mais aguardando preparo)
+        if (slotHour < 23 && slotIdx === start) {
+          phaseEntries[phaseCount - 1]++;
         }
+        // Para cada fase, calcular o momento em que o pedido entra nela
+        for (let p = phaseCount - 2; p >= 0; p--) {
+          // O tempo de cada fase é proporcional
+          const phaseStart = start + Math.floor(((phaseCount - 1 - p) * (end - start)) / phaseCount);
+          if (slotIdx === phaseStart && slotIdx > start && slotIdx <= end) {
+            phaseEntries[p]++;
+          }
+        }
+      });
+      // Atualiza o acumulado de cada fase
+      for (let p = 0; p < phaseCount; p++) {
+        cumulativeByPhase[p] += phaseEntries[p];
       }
-
-      // Balancear valores finais para terminar no mesmo ponto
-      if (hour === '23h') {
-        const total = cumulativeCounts.reduce((a, b) => a + b, 0);
-        cumulativeCounts = cumulativeCounts.map((_, i) =>
-          i === 0 ? total : 0 // Todos itens na última fase
-        );
+      // Às 00:00, todas as fases se encontram (igualam ao maior valor)
+      let values = [...cumulativeByPhase];
+      if (slots[slotIdx] === '00:00') {
+        const maxVal = Math.max(...cumulativeByPhase);
+        values = Array(phaseCount).fill(maxVal);
+        // Atualiza o acumulado para o próximo dia
+        cumulativeByPhase = Array(phaseCount).fill(maxVal);
       }
-
-      const timeData = {
-        date: `${['Qua', 'Qui', 'Sex', 'Sáb', 'Dom', 'Seg'][daysOfWeek.indexOf(day)]} ${hour}`,
-        values: [...cumulativeCounts]
-      };
-      data.push(timeData);
-    });
+      data.push({
+        date: `${['Qua', 'Qui', 'Sex', 'Sáb', 'Dom', 'Seg'][dayIdx]} ${slots[slotIdx]}`,
+        values
+      });
+    }
   });
-
   return data;
-};
+}
+
+const generateData = generateCumulativeData;
 
 const CumulativeFlowChart = () => {
   const chartData = generateData();
@@ -102,7 +164,9 @@ const CumulativeFlowChart = () => {
       fill: true,
       pointRadius: 1,
     }))
-  };  const options = {
+  };
+
+  const options = {
     responsive: true,
     plugins: {
       title: {
@@ -125,11 +189,30 @@ const CumulativeFlowChart = () => {
             size: 12
           }
         }
+      },
+      zoom: {
+        pan: {
+          enabled: true,
+          mode: 'xy',
+        },
+        zoom: {
+          wheel: {
+            enabled: true,
+          },
+          pinch: {
+            enabled: true,
+          },
+          mode: 'xy',
+        },
+        limits: {
+          x: { min: 0 },
+          y: { min: 0 },
+        },
       }
     },
     scales: {
       y: {
-        stacked: true,
+        stacked: false,
         beginAtZero: true,
         grid: {
           color: 'rgba(0, 0, 0, 0.1)',
@@ -166,21 +249,29 @@ const CumulativeFlowChart = () => {
           font: {
             size: 10
           },
-          callback: function(value: string | number, index: number, values: any[]) {
-            // Mostrar dia + hora no primeiro ponto de cada dia (19:00)
-            if (index % 24 === 0) {
-              return chartData[index].date;
+          callback: function(value: string | number, index: number, ticks: any[]) {
+            // Atualiza os labels do eixo X conforme o zoom/pan
+            // slots.length = 24 (das 19:00 até 23:50, de 10 em 10 min) + 1 (00:00)
+            // slotsPerDay = (CLOSE_HOUR - OPEN_HOUR) * (60 / SAMPLE_INTERVAL) + 1
+            const slotsPerDay = (CLOSE_HOUR - OPEN_HOUR) * (60 / SAMPLE_INTERVAL) + 1;
+            // Se for o primeiro tick visível de cada dia, mostra o label completo
+            if (index % slotsPerDay === 0) {
+              return chartData[index]?.date || '';
             }
-            // Mostrar apenas hora nos pontos subsequentes
-            if (index % 4 === 0) {
-              return hours[index % 24];
+            // Mostrar apenas hora cheia nos pontos subsequentes
+            const slotsPerHour = 60 / SAMPLE_INTERVAL;
+            const slotIdx = index % slotsPerDay;
+            if (slotIdx % slotsPerHour === 0) {
+              const hour = OPEN_HOUR + Math.floor(slotIdx / slotsPerHour);
+              return `${hour.toString().padStart(2, '0')}:00h`;
             }
             return '';
           }
         }
       }
-    }
-  };  return (
+    },
+  };
+  return (
     <div className="chart-wrapper" style={{ margin:"0px", width: "1300px", height: "750px" }}>
       <Line data={data} options={options} />
     </div>
