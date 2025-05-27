@@ -4,7 +4,6 @@ import type { RevealOptions } from 'reveal.js';
 import 'reveal.js/dist/reveal.css';
 import 'reveal.js/dist/theme/sky.css';
 import './chartRegister';
-import CumulativeFlowChart from './CumulativeFlowChart';
 import CfdChart from './CfdChart';
 import LeadtimeChart from './LeadtimeChart';
 import LeadtimeBreakdownChart from './LeadtimeBreakdownChart';

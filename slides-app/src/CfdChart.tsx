@@ -73,12 +73,19 @@ const CfdChart: React.FC = () => {
   console.log("Primeiro timestamp nos dados do gráfico:", chartData[0]?.date);
 
   // Gera labels lineares de minuto em minuto para os dias 16 e 17/05/2025 (UTC)
+  // Excluindo o período entre 01:00 e 18:00 do dia 17/05/2025
   const start = new Date('2025-05-16T19:00:00.000Z');
   const end = new Date('2025-05-17T23:59:00.000Z');
+  const skipStart = new Date('2025-05-17T01:00:00.000Z');
+  const skipEnd = new Date('2025-05-17T18:00:00.000Z');
+  
   const linearLabels: string[] = [];
   let d = new Date(start);
   while (d <= end) {
-    linearLabels.push(d.toISOString());
+    // Pula os timestamps entre 01:00 e 18:00 do dia 17
+    if (d < skipStart || d >= skipEnd) {
+      linearLabels.push(d.toISOString());
+    }
     d = new Date(d.getTime() + 60 * 1000); // Avança 1 minuto
   }
   console.log("Primeiro label linear:", linearLabels[0]);
@@ -250,6 +257,8 @@ const CfdChart: React.FC = () => {
             const d = new Date(label);
             const hour = d.getUTCHours();
             const min = d.getUTCMinutes();
+            
+            // Verifica se é hora cheia (minutos = 0)
             if (min === 0) {
               if (hour === 0) {
                 // Mostra dia da semana e hora
