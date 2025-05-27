@@ -1,8 +1,8 @@
 import React from 'react';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import cfdData from './data/cfd_data_realistic_adjusted.json';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import zoomPlugin from 'chartjs-plugin-zoom';
+import cfdData from './data/cfd_data_realistic_adjusted.json';
 
 ChartJS.register(
   CategoryScale,
@@ -19,7 +19,7 @@ ChartJS.register(
 // Fases em ordem inversa (última fase embaixo)
 const phases = [
   'Pedido Entregue',
-  'Aguardando entrega', 
+  'Aguardando entrega',
   'Em embalagem',
   'Aguardando embalagem',
   'Em preparo',
@@ -38,14 +38,18 @@ const parseData = (): TimeData[] => {
   const allTimestamps = Array.from(
     new Set(allEntries.flatMap(entry => entry))
   ).sort();
+console.log("Todos os timestamps:", allTimestamps);
 
-  // Normaliza todos os timestamps para precisão de minuto UTC
-  function toMinuteUTC(dateStr: string) {
-    const d = new Date(dateStr);
-    d.setUTCSeconds(0, 0);
-    return d.toISOString();
-  }
+
+// Normaliza todos os timestamps para precisão de minuto UTC
+function toMinuteUTC(dateStr: string) {
+  const d = new Date(dateStr);
+  d.setSeconds(0, 0);
+  return d.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo', hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(/(\d+)\/(\d+)\/(\d+),/, '$3-$1-$2').replace(' ', 'T') + ':00.000Z';
+}
   const normalizedTimestamps = Array.from(new Set(allTimestamps.map(toMinuteUTC))).sort();
+  console.log("Timestamps normalizados:", normalizedTimestamps);
+
 
   normalizedTimestamps.forEach(timestamp => {
     const cumulativeCounts = phases.map((_, phaseIdx) => {
@@ -62,11 +66,14 @@ const parseData = (): TimeData[] => {
   return data;
 };
 
-const CfdChart = () => {
+const CfdChart: React.FC = () => {
   const chartData = parseData();
 
-  // Gera labels lineares de minuto em minuto apenas para o dia 17/05/2025 (UTC)
-  const start = new Date('2025-05-16T00:00:00.000Z');
+  console.log("Chart data:", chartData);
+  console.log("Primeiro timestamp nos dados do gráfico:", chartData[0]?.date);
+
+  // Gera labels lineares de minuto em minuto para os dias 16 e 17/05/2025 (UTC)
+  const start = new Date('2025-05-16T19:00:00.000Z');
   const end = new Date('2025-05-17T23:59:00.000Z');
   const linearLabels: string[] = [];
   let d = new Date(start);
@@ -74,6 +81,7 @@ const CfdChart = () => {
     linearLabels.push(d.toISOString());
     d = new Date(d.getTime() + 60 * 1000); // Avança 1 minuto
   }
+  console.log("Primeiro label linear:", linearLabels[0]);
 
   // Preenche os dados para cada label linear, usando forward fill APÓS o primeiro dado real
   function isSameMinute(a: string, b: string) {
@@ -102,28 +110,61 @@ const CfdChart = () => {
     }
   });
 
+  const maximo = Math.max(...linearData.flatMap(values => values));
+  console.log("Valor máximo:", maximo);
   const data = {
     labels: linearLabels,
     datasets: phases.map((phase, idx) => ({
       label: phase,
       data: linearData.map(values => values[idx]),
-      backgroundColor: [
-        'rgb(0, 100, 18)',
-        'rgb(23, 165, 42)',
-        'rgb(255, 51, 0)',
-        'rgb(255, 123, 0)',
-        'rgb(255, 174, 0)',
-        'rgb(255, 232, 100)'
-      ][idx],
-      borderWidth: 0,
       fill: true,
-      pointRadius: 1,
+      backgroundColor: [
+        'rgba(0, 131, 0, 0.7)',
+        'rgba(3, 243, 252, 0.7)',
+        'rgba(75, 0, 173, 0.86)',
+        'rgb(255, 217, 2)',
+        'rgba(255, 147, 5, 0.88)', // Amarelo mais escuro
+        'rgba(255, 0, 0, 0.7)' // Amarelo mais escuro
+      ][idx],
     }))
   };
 
+  console.log("Chart data:", data);
   const options = {
     responsive: true,
+    animations: {},
     plugins: {
+      tooltip: {
+        enabled: true,
+        intersect: false, // Adicionado intersect: false
+        callbacks: {
+          title: function(context: any) {
+            console.log("Tooltip title callback chamado", context);
+            if (!context.length) return '';
+            const label = context[0].label;
+            if (!label) return '';
+            const d = new Date(label);
+            if (isNaN(d.getTime())) return label;
+            const dia = String(d.getUTCDate()).padStart(2, '0');
+            const mes = String(d.getUTCMonth() + 1).padStart(2, '0');
+            const hora = String(d.getUTCHours()).padStart(2, '0');
+            const min = String(d.getUTCMinutes()).padStart(2, '0');
+            const formattedTitle = `${dia}/${mes} ${hora}:${min}`;
+            console.log("Tooltip title:", formattedTitle);
+            return formattedTitle;
+          },
+          label: function(context: any) {
+            console.log("Tooltip label callback chamado", context);
+            console.log("context.dataset:", context.dataset);
+            console.log("context.dataIndex:", context.dataIndex);
+            const value = context.dataset.data[context.dataIndex];
+            console.log("Tooltip value:", value);
+            const formattedLabel = `${value} pedidos`;
+            console.log("Tooltip label:", formattedLabel);
+            return formattedLabel;
+          }
+        }
+      },
       zoom: {
         pan: {
           enabled: true,
@@ -164,39 +205,20 @@ const CfdChart = () => {
           }
         }
       },
-      tooltip: {
-        callbacks: {
-          title: function(context: any) {
-            // context[0].label é o timestamp ISO
-            if (!context.length) return '';
-            const label = context[0].label;
-            if (!label) return '';
-            const d = new Date(label);
-            if (isNaN(d.getTime())) return label;
-            // Formato: 'dd/MM HH:mm'
-            const dia = String(d.getUTCDate()).padStart(2, '0');
-            const mes = String(d.getUTCMonth() + 1).padStart(2, '0');
-            const hora = String(d.getUTCHours()).padStart(2, '0');
-            const min = String(d.getUTCMinutes()).padStart(2, '0');
-            return `${dia}/${mes} ${hora}:${min}`;
-          }
-        }
-      }
     },
     scales: {
       y: {
         stacked: false,
         beginAtZero: true,
         grid: {
-          color: 'rgba(0, 0, 0, 0.1)',
           lineWidth: 1,
           drawBorder: false
         },
         ticks: {
           display: false,
           autoSkip: false,
-          maxTicksLimit: 2000,
-          stepSize: 1,
+          maxTicksLimit: 200,
+          stepSize: 0.1,
           font: {
             size: 12
           }
@@ -222,7 +244,7 @@ const CfdChart = () => {
           maxTicksLimit: 2000,
           callback: function(_value: string | number, index: number, ticks: any[]) {
             // Só mostra label em horas cheias
-            const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+            const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sábado'];
             const label = linearLabels[index];
             if (!label) return '';
             const d = new Date(label);
@@ -248,21 +270,31 @@ const CfdChart = () => {
     },
     elements: {
       point: {
-        radius: 3,
-        hitRadius: 5,
-        hoverRadius: 7
+        radius: 0, // Remove pontos
+        hitRadius: 0,
+        hoverRadius: 0
       },
       line: {
-        tension: 0 // Linhas retas entre pontos
+        tension: 0.1, // Suaviza as curvas
+        borderWidth: 0 // Remove bordas
       }
     }
   };
 
-  return (
-    <div className="chart-wrapper" style={{ margin:"0px", width: "1300px", height: "750px" }}>
-      <Line data={data} options={options} />
-    </div>
-  );
+  try {
+    return (
+      <div className="chart-wrapper" style={{ margin:"0px", width: "1300px", height: "750px" }}>
+        {chartData && chartData.length > 0 ? (
+          <Line data={data} options={options}/>
+        ) : (
+          <p>Não há dados para exibir o gráfico CFD.</p>
+        )}
+      </div>
+    );
+  } catch (error) {
+    console.error("Erro ao renderizar o gráfico CFD:", error);
+    return <p>Erro ao exibir o gráfico CFD.</p>;
+  }
 };
 
 export default CfdChart;

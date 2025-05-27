@@ -1,7 +1,7 @@
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
-  Chart as ChartJS,
+  Chart,
   CategoryScale,
   LinearScale,
   BarElement,
@@ -11,14 +11,6 @@ import {
   ChartData
 } from 'chart.js';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
 
 interface PhaseTimes {
   waitingPreparation: number;
