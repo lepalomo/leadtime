@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import zoomPlugin from 'chartjs-plugin-zoom';
@@ -38,7 +38,6 @@ const parseData = (): TimeData[] => {
   const allTimestamps = Array.from(
     new Set(allEntries.flatMap(entry => entry))
   ).sort();
-console.log("Todos os timestamps:", allTimestamps);
 
 
 // Normaliza todos os timestamps para precisão de minuto UTC
@@ -48,7 +47,6 @@ function toMinuteUTC(dateStr: string) {
   return d.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo', hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(/(\d+)\/(\d+)\/(\d+),/, '$3-$1-$2').replace(' ', 'T') + ':00.000Z';
 }
   const normalizedTimestamps = Array.from(new Set(allTimestamps.map(toMinuteUTC))).sort();
-  console.log("Timestamps normalizados:", normalizedTimestamps);
 
 
   normalizedTimestamps.forEach(timestamp => {
@@ -67,10 +65,8 @@ function toMinuteUTC(dateStr: string) {
 };
 
 const CfdChart: React.FC = () => {
-  const chartData = parseData();
+ const chartData = useMemo(() => parseData(), []);
 
-  console.log("Chart data:", chartData);
-  console.log("Primeiro timestamp nos dados do gráfico:", chartData[0]?.date);
 
   // Gera labels lineares de minuto em minuto para os dias 16 e 17/05/2025 (UTC)
   // Excluindo o período entre 01:00 e 18:00 do dia 17/05/2025
@@ -88,7 +84,6 @@ const CfdChart: React.FC = () => {
     }
     d = new Date(d.getTime() + 60 * 1000); // Avança 1 minuto
   }
-  console.log("Primeiro label linear:", linearLabels[0]);
 
   // Preenche os dados para cada label linear, usando forward fill APÓS o primeiro dado real
   function isSameMinute(a: string, b: string) {
@@ -118,7 +113,6 @@ const CfdChart: React.FC = () => {
   });
 
   const maximo = Math.max(...linearData.flatMap(values => values));
-  console.log("Valor máximo:", maximo);
   const data = {
     labels: linearLabels,
     datasets: phases.map((phase, idx) => ({
@@ -136,7 +130,6 @@ const CfdChart: React.FC = () => {
     }))
   };
 
-  console.log("Chart data:", data);
   const options = {
     responsive: true,
     animations: {},
@@ -146,7 +139,6 @@ const CfdChart: React.FC = () => {
         intersect: false, // Adicionado intersect: false
         callbacks: {
           title: function(context: any) {
-            console.log("Tooltip title callback chamado", context);
             if (!context.length) return '';
             const label = context[0].label;
             if (!label) return '';
@@ -157,17 +149,11 @@ const CfdChart: React.FC = () => {
             const hora = String(d.getUTCHours()).padStart(2, '0');
             const min = String(d.getUTCMinutes()).padStart(2, '0');
             const formattedTitle = `${dia}/${mes} ${hora}:${min}`;
-            console.log("Tooltip title:", formattedTitle);
             return formattedTitle;
           },
           label: function(context: any) {
-            console.log("Tooltip label callback chamado", context);
-            console.log("context.dataset:", context.dataset);
-            console.log("context.dataIndex:", context.dataIndex);
             const value = context.dataset.data[context.dataIndex];
-            console.log("Tooltip value:", value);
             const formattedLabel = `${value} pedidos`;
-            console.log("Tooltip label:", formattedLabel);
             return formattedLabel;
           }
         }
@@ -301,7 +287,6 @@ const CfdChart: React.FC = () => {
       </div>
     );
   } catch (error) {
-    console.error("Erro ao renderizar o gráfico CFD:", error);
     return <p>Erro ao exibir o gráfico CFD.</p>;
   }
 };
