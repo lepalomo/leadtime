@@ -3,14 +3,30 @@ import Reveal from 'reveal.js';
 import type { RevealOptions } from 'reveal.js';
 import 'reveal.js/dist/reveal.css';
 import 'reveal.js/dist/theme/sky.css';
+import './chartRegister';
 import CfdChart from './CfdChart';
 import LeadtimeChart from './LeadtimeChart';
 import LeadtimeBreakdownChart from './LeadtimeBreakdownChart';
 import CycletimesChart from './CycletimesChart';
 import PieChart from './DoughnutChart';
+import { Chart } from 'chart.js';
 import ThroughputByBordaChart from './ThroughputByBordaChart';
 import ThroughputChart from './ThroughputChart';
-import ChartWrapper from './ChartWrapper';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  LineElement,
+  PointElement,
+  ArcElement,
+} from 'chart.js';
+
+// Removendo o registro de componentes do App.tsx
+
 
 const App = () => {
   const chartRefs = useRef<Record<string, Chart | null>>({});
@@ -121,40 +137,96 @@ const App = () => {
         <section>
           <h2>Visualização de Leadtime</h2>
           <div style={{ width: '80%', margin: '0 auto' }}>
-            <ChartWrapper
-              component={LeadtimeChart}
-              componentProps={{ shouldAnimate: activeSlide === 2 }}
-              fallback={<div>Carregando gráfico de leadtime...</div>}
-              key={activeSlide === 2 ? 'leadtime-active' : 'leadtime'}
-            />
+            <LeadtimeChart shouldAnimate={activeSlide === 1} />
           </div>
+        </section>
+        <section>
+          <h2>Leadtime - Simples, mas muito útil</h2>
+          <p>O dado de leadtime é tão simples quanto útil, porque traz a informação mais importante do <strong>ponto de vista do cliente:</strong> o tempo total entre o pedido e a entrega.</p>
+        </section>
+        <section>
+          <p>No fim do dia, quem pede uma pizza não quer saber se o pizzaiolo é lento, se precisou abrir um novo frasco de azeitonas ou se o forno demorou a aquecer, sua experiência está diretamente ligada ao tempo entre o momento que pediu até o momento que a pizza está disponível pra ser consumida.</p>
+          <div style={{ textAlign: 'center', padding: '0px' }}>
+            <img src="src/assets/pizza-box-free-svg-file.png" alt="Caixa de Pizza" style={{ width: '200px', height: 'auto' }} />
+          </div>
+        </section>
+        <section>
+          <h2>Gio Pizzas</h2>
+          <p>Agora, do <strong>ponto de vista do negócio</strong>, fica a dúvida:</p>
+          <ul>
+            <li>É possível reduzir o leadtime?
+              Caso sim, como?</li>
+          </ul>
+        </section>
+        <section>
+          <p>Como dito inicialmente, a GIO PIZZAS tem 3 lojas. <br />E parece que a realidade de cada uma é um pouco diferente.</p>
+
+          <p>
+            <span>🍕</span>
+            <strong>Loja 1:</strong> Possui um forno pequeno para muita demanda.
+          </p>
+          <p>
+            <span>🍕</span>
+            <strong>Loja 2:</strong> Boa estrutura para preparo, mas cada entregador sai com 4 a 6 pizzas.
+          </p>
+          <p>
+            <span>🍕</span>
+            <strong>Loja 3:</strong> O pedido entra rapidamente para preparo e sempre tem entregadores disponíveis, mas o leadtime é o mesmo das outras.
+          </p>
+        </section>
+        <section>
+          <h2>Leadtime Breakdown</h2>
+          <p>Para entender como as particularidades de cada loja afetam o tempo total da entrega, foi feita uma análise chamada <strong>leadtime breakdown</strong></p>
         </section>
         <section>
           <h2>Leadtime Breakdown</h2>
           <p>Garante a visualização detalhada das fases do processo</p>
           <p>Loja 1 - Possui um forno pequeno para muita demanda.</p>
           <div style={{ width: '75%', margin: '0 auto' }}>
-            <ChartWrapper
-              component={LeadtimeBreakdownChart}
-              componentProps={{
-                shouldAnimate: activeSlide === 3,
-                phaseTimes: storePhaseTimes.store1
-              }}
-              fallback={<div>Carregando breakdown de leadtime...</div>}
-              key={activeSlide === 3 ? 'breakdown1-active' : 'breakdown1'}
+            <LeadtimeBreakdownChart
+              shouldAnimate={activeSlide === 2}
+              phaseTimes={storePhaseTimes.store1}
             />
           </div>
         </section>
         <section>
+          <h2>Leadtime Breakdown</h2>
+          <p>Garante a visualização detalhada das fases do processo</p>
+          <p>Loja 2 - Boa estrutura para preparo, mas cada entregador sai com 4 a 6 pizzas.</p>
+          <div style={{ width: '75%', margin: '0 auto' }}>
+            <LeadtimeBreakdownChart
+              shouldAnimate={activeSlide === 3}
+              phaseTimes={storePhaseTimes.store2}
+            />
+          </div>
+        </section>
+        <section>
+          <h2>Leadtime Breakdown</h2>
+          <p>Garante a visualização detalhada das fases do processo</p>
+          <p>Loja 3 - O pedido entra rapidamente para preparo e sempre tem entregadores disponíveis, mas o leadtime é o mesmo das outras.</p>
+          <div style={{ width: '70%', margin: '0 auto' }}>
+            <LeadtimeBreakdownChart
+              shouldAnimate={activeSlide === 4}
+              phaseTimes={storePhaseTimes.store3}
+            />
+          </div>
+        </section>
+        <section>
+          <h2>Acompanhamento</h2>
+          <p>Agora que os problemas em cada loja foram endereçados, para que não voltem a acontecer, a gestão da GIO PIZZAS pensou em uma forma simples de acompanhar o processo continuamente.</p>
+          <p>Em nível de gestão geral, o Leadtime Breakdown (mostrando todas as fases do processo) parece apresentar detalhes demais, e o Leadtime, detalhes de menos.</p>
+        </section>
+        <section>
+          <h2>Cycletime - Acompanhamento</h2>
+          <p>O ideal seria uma visão intermediária entre os dois extremos.</p>
+          <p>Uma visão que mostre o tempo total, mas também as fases mais importantes do processo.</p>
+          <p>A solução foi adotar uma visualização <strong>CYCLETIME</strong> (tempo de ciclo)</p>
+        </section>
+        <section>
           <h2>Cycletimes - Tempos de ciclo</h2>
           <p>Visão consolidada dos principais processos</p>
-          <div style={{ width: '75%', margin: '0 auto' }}>
-            <ChartWrapper
-              component={CycletimesChart}
-              componentProps={{ shouldAnimate: activeSlide === 4 }}
-              fallback={<div>Carregando gráfico de cycletimes...</div>}
-              key={activeSlide === 4 ? 'cycletime-active' : 'cycletime'}
-            />
+          <div style={{ width: '80%', margin: '0 auto' }}>
+            <CycletimesChart shouldAnimate={activeSlide === 3} />
           </div>
         </section>
         <section>
@@ -167,24 +239,9 @@ const App = () => {
               gap: '10px',
               marginTop: '0px'
             }}>
-              <ChartWrapper
-                component={PieChart}
-                componentProps={{ shouldAnimate: activeSlide === 5, preparationTime: 70, deliveryTime: 30, title: "Loja 1" }}
-                fallback={<div>Carregando gráfico de pizza...</div>}
-                key={activeSlide === 5 ? 'pie1-active' : 'pie1'}
-              />
-              <ChartWrapper
-                component={PieChart}
-                componentProps={{ shouldAnimate: activeSlide === 5, preparationTime: 60, deliveryTime: 40, title: "Loja 2" }}
-                fallback={<div>Carregando gráfico de pizza...</div>}
-                key={activeSlide === 5 ? 'pie2-active' : 'pie2'}
-              />
-              <ChartWrapper
-                component={PieChart}
-                componentProps={{ shouldAnimate: activeSlide === 5, preparationTime: 80, deliveryTime: 20, title: "Loja 3" }}
-                fallback={<div>Carregando gráfico de pizza...</div>}
-                key={activeSlide === 5 ? 'pie3-active' : 'pie3'}
-              />
+              <PieChart shouldAnimate={activeSlide === 4} preparationTime={70} deliveryTime={30} title="Loja 1" />
+              <PieChart shouldAnimate={activeSlide === 4} preparationTime={60} deliveryTime={40} title="Loja 2" />
+              <PieChart shouldAnimate={activeSlide === 4} preparationTime={80} deliveryTime={20} title="Loja 3" />
             </div>
           </div>
         </section>
@@ -192,6 +249,7 @@ const App = () => {
           <h2>GIO PIZZAS</h2>
           <p>Com os dados em mãos, não só a gestão mas toda a equipe agora pode acompanhar o o tempo de produção e tratar gargalos.</p>
           <p>As avaliações melhoraram e houve um impacto positivo no faturamento.</p>
+
         </section>
         <section>
           <p>A GIO pizzas abriu duas novas lojas, novas pessoas foram contratadas e, apesar de criar, documentar e acompanhar de perto o processo, a nova fase da empresa exigia,
@@ -206,24 +264,15 @@ const App = () => {
           <h2>Throughput</h2>
           <p>A visualização abaixo mostra claramente a diferença entre os dias, e permite ter uma visão macro da média de pedidos por dia.</p>
           <div style={{ width: '80%', margin: '0 auto' }}>
-            <ChartWrapper
-              component={ThroughputChart}
-              componentProps={{ shouldAnimate: activeSlide === 20 }}
-              fallback={<div>Carregando gráfico de throughput...</div>}
-              key={activeSlide === 20 ? 'throughput-active' : 'throughput'}
-            />
+            <ThroughputChart shouldAnimate={activeSlide === 19} />
           </div>
         </section>
+
         <section>
           <h2>Throughput - Tipo de Borda</h2>
           <p>Analisando por tipo de borda, podemos ver que às segundas há maior preferência por bordas recheadas.</p>
           <div style={{ width: '80%', margin: '0 auto' }}>
-            <ChartWrapper
-              component={ThroughputByBordaChart}
-              componentProps={{ shouldAnimate: activeSlide === 21 }}
-              fallback={<div>Carregando gráfico de throughput por borda...</div>}
-              key={activeSlide === 21 ? 'bordas-active' : 'bordas'}
-            />
+            <ThroughputByBordaChart shouldAnimate={activeSlide === 20} />
           </div>
         </section>
         <section>
@@ -243,14 +292,14 @@ const App = () => {
           </div>
         </section>
         <section>
-          <h2>Cumulative Flow Diagram (CFD)</h2>
+          <h2>Cummulative Flow Diagram (CFD)</h2>
           <p>Foi implementada uma visualização conhecida como CFD, ou Diagrama de Fluxo Cumulativo, que permite que em um único gráfico se tenha dados de gargalos,
             vazão, leadtime médio, entre outros números.</p>
         </section>
         <section>
           <h2>CFD</h2>
           <div>
-            <CfdChart key={activeSlide === 23 ? 'cfd-active' : 'cfd'} />
+            <CfdChart />
           </div>
         </section>
         <section>

@@ -81,7 +81,7 @@ const App = () => {
       progress: true,
       controls: true,
       transition: 'slide',
-      fragments: true,
+      fragments: false,
       width: 1300,
       margin: 0.05,
       keyboard: {
@@ -130,53 +130,10 @@ const App = () => {
             mas reclama do tempo de entrega.</p>
         </section>
         <section>
-          <h2>Gio Pizzas</h2>
-          <p>Como os sistemas já são padronizados entre as 3 lojas, não foi difícil conseguir o dado do tempo médio entre pedido e entrega.</p>
-          <p>A gestão levantou essa informação recorrendo a uma métrica chamada <strong>LEADTIME</strong>.</p>
-        </section>
-        <section>
           <h2>Visualização de Leadtime</h2>
           <div style={{ width: '80%', margin: '0 auto' }}>
             <LeadtimeChart shouldAnimate={activeSlide === 1} />
           </div>
-        </section>
-        <section>
-          <h2>Leadtime - Simples, mas muito útil</h2>
-          <p>O dado de leadtime é tão simples quanto útil, porque traz a informação mais importante do <strong>ponto de vista do cliente:</strong> o tempo total entre o pedido e a entrega.</p>
-        </section>
-        <section>
-          <p>No fim do dia, quem pede uma pizza não quer saber se o pizzaiolo é lento, se precisou abrir um novo frasco de azeitonas ou se o forno demorou a aquecer, sua experiência está diretamente ligada ao tempo entre o momento que pediu até o momento que a pizza está disponível pra ser consumida.</p>
-          <div style={{ textAlign: 'center', padding: '0px' }}>
-            <img src="src/assets/pizza-box-free-svg-file.png" alt="Caixa de Pizza" style={{ width: '200px', height: 'auto' }} />
-          </div>
-        </section>
-        <section>
-          <h2>Gio Pizzas</h2>
-          <p>Agora, do <strong>ponto de vista do negócio</strong>, fica a dúvida:</p>
-          <ul>
-            <li>É possível reduzir o leadtime?
-              Caso sim, como?</li>
-          </ul>
-        </section>
-        <section>
-          <p>Como dito inicialmente, a GIO PIZZAS tem 3 lojas. <br />E parece que a realidade de cada uma é um pouco diferente.</p>
-
-          <p>
-            <span>🍕</span>
-            <strong>Loja 1:</strong> Possui um forno pequeno para muita demanda.
-          </p>
-          <p>
-            <span>🍕</span>
-            <strong>Loja 2:</strong> Boa estrutura para preparo, mas cada entregador sai com 4 a 6 pizzas.
-          </p>
-          <p>
-            <span>🍕</span>
-            <strong>Loja 3:</strong> O pedido entra rapidamente para preparo e sempre tem entregadores disponíveis, mas o leadtime é o mesmo das outras.
-          </p>
-        </section>
-        <section>
-          <h2>Leadtime Breakdown</h2>
-          <p>Para entender como as particularidades de cada loja afetam o tempo total da entrega, foi feita uma análise chamada <strong>leadtime breakdown</strong></p>
         </section>
         <section>
           <h2>Leadtime Breakdown</h2>
@@ -210,17 +167,6 @@ const App = () => {
               phaseTimes={storePhaseTimes.store3}
             />
           </div>
-        </section>
-        <section>
-          <h2>Acompanhamento</h2>
-          <p>Agora que os problemas em cada loja foram endereçados, para que não voltem a acontecer, a gestão da GIO PIZZAS pensou em uma forma simples de acompanhar o processo continuamente.</p>
-          <p>Em nível de gestão geral, o Leadtime Breakdown (mostrando todas as fases do processo) parece apresentar detalhes demais, e o Leadtime, detalhes de menos.</p>
-        </section>
-        <section>
-          <h2>Cycletime - Acompanhamento</h2>
-          <p>O ideal seria uma visão intermediária entre os dois extremos.</p>
-          <p>Uma visão que mostre o tempo total, mas também as fases mais importantes do processo.</p>
-          <p>A solução foi adotar uma visualização <strong>CYCLETIME</strong> (tempo de ciclo)</p>
         </section>
         <section>
           <h2>Cycletimes - Tempos de ciclo</h2>
@@ -303,11 +249,14 @@ const App = () => {
           </div>
         </section>
         <section>
-          <h2>Boas práticas: <br />Visualizações de leadtime</h2>
-          <ul>
-            <li>As visualizações se dão majoritariamente em gráficos de barras;</li>
-            <li>O leadtime é medido em dias corridos, horas úteis ou dias úteis;</li>
-          </ul>
+          <h2>CFD</h2>
+          <div style={{ textAlign: 'center', marginTop: '20px' }}>
+            <img
+              src="src/assets/cfd_chart.png"
+              alt="CFD Chart"
+              style={{ width: '80%', maxWidth: '900px', height: 'auto', border: '1px solid #ccc', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+            />
+          </div>
         </section>
         <section>
           <h2>Boas práticas: Kanban</h2>
