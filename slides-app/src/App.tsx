@@ -193,7 +193,7 @@ const App = () => {
         </section>
         <section>
           <h2>GIO PIZZAS</h2>
-          <p>Com os dados em mãos, não só a gestão mas toda a equipe agora pode acompanhar o o tempo de produção e tratar gargalos.</p>
+          <p>Com os dados em mãos, não só a gestão mas toda a equipe agora pode acompanhar o tempo de produção e tratar gargalos.</p>
           <p>As avaliações melhoraram e houve um impacto positivo no faturamento.</p>
 
         </section>
