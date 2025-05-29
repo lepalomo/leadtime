@@ -1,101 +1,99 @@
-# 📊 Leadtime Visualization App
+# 📊 Aplicativo de Visualização de Leadtime
 
 <div align="center">
 
-![Leadtime](https://img.shields.io/badge/Leadtime-Visualization-blue)
+![Leadtime](https://img.shields.io/badge/Leadtime-Visualização-blue)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-4-3178C6?logo=typescript)
 ![Vite](https://img.shields.io/badge/Vite-Latest-646CFF?logo=vite)
 ![Chart.js](https://img.shields.io/badge/Chart.js-4-FF6384?logo=chart.js)
 
-*A beautiful, interactive presentation tool for visualizing delivery metrics and performance indicators*
+*Apresentação interativa sobre métricas de entrega e indicadores de desempenho*
 
 </div>
 
-## ✨ Features
+## ✨ Funcionalidades
 
-- 📈 **Interactive Charts** - Visualize your data with beautiful, responsive charts
-- 🎞️ **Slide Presentations** - Create engaging presentations with Reveal.js
-- 📱 **Responsive Design** - Works on desktop and mobile devices
-- 🔄 **Real-time Updates** - See your data change in real-time
-- 🎨 **Customizable Themes** - Easily change the look and feel of your presentations
+- 📈 **Gráficos Interativos** - Responsivos
+- 🎞️ **Apresentações em Slides** - Usando Reveal.js
+- 📱 **Design Responsivo** - Funciona em dispositivos desktop e móveis
 
-## 🚀 Tech Stack
+## 🚀 Stack Tecnológica
 
-- **Frontend:** React with TypeScript
-- **Build Tool:** Vite
-- **Presentation:** Reveal.js
-- **Visualization:** Chart.js with React-ChartJS-2
-- **Styling:** Custom theming
+- **Frontend:** React com TypeScript
+- **Ferramenta de Build:** Vite
+- **Apresentação:** Reveal.js
+- **Visualização:** Chart.js com React-ChartJS-2
+- **Estilização:** Tema personalizado
 
-## 🛠️ Quick Start
+## 🛠️ Início Rápido
 
-### Prerequisites
+### Pré-requisitos
 
 - Node.js (v14+)
-- npm or yarn
+- npm ou yarn
 
-### Installation
+### Instalação
 
 ```bash
-# Clone the repository
-git clone https://github.com/YOUR_USERNAME/leadtime.git
+# Clone o repositório
+git clone https://github.com/SEU_USUARIO/leadtime.git
 
-# Navigate to project directory
+# Navegue até o diretório do projeto
 cd leadtime/slides-app
 
-# Install dependencies
+# Instale as dependências
 npm install
-# or
+# ou
 yarn install
 
-# Start development server
+# Inicie o servidor de desenvolvimento
 npm run dev
-# or
+# ou
 yarn dev
 ```
 
-Visit `http://localhost:5173` in your browser to see the app in action!
+Visite `http://localhost:5173` no seu navegador para ver a apresentação em ação!
 
-## 📦 Building for Production
+## 📦 Compilando para Produção
 
 ```bash
 npm run build
-# or
+# ou
 yarn build
 ```
 
-## 📂 Project Structure
+## 📂 Estrutura do Projeto
 
 ```
 slides-app/
 ├── src/
-│   ├── App.tsx              # Main application
-│   ├── theme.ts             # Custom theming
-│   ├── charts/              # Chart components
-│   │   ├── CfdChart.tsx     # Cumulative Flow Diagram
+│   ├── App.tsx              # Aplicação principal
+│   ├── theme.ts             # Tema personalizado
+│   ├── charts/              # Componentes de gráficos
+│   │   ├── CfdChart.tsx     # Diagrama de Fluxo Cumulativo
 │   │   ├── LeadtimeChart.tsx
 │   │   └── ThroughputChart.tsx
 │   └── ...
-├── public/                  # Static assets
-└── vite.config.ts          # Vite configuration
+├── public/                  # Ativos estáticos
+└── vite.config.ts          # Configuração do Vite
 ```
 
-## 🤝 Contributing
+## 🤝 Contribuindo
 
-1. **Fork** the repository
-2. **Clone** your fork
-3. **Create** a feature branch: `git checkout -b feature/amazing-feature`
-4. **Commit** your changes: `git commit -m 'Add amazing feature'`
-5. **Push** to your branch: `git push origin feature/amazing-feature`
-6. Open a **Pull Request**
+1. **Faça um fork** do repositório
+2. **Clone** seu fork
+3. **Crie** uma branch para sua funcionalidade: `git checkout -b feature/funcionalidade-incrivel`
+4. **Commit** suas alterações: `git commit -m 'Adiciona funcionalidade incrível'`
+5. **Push** para sua branch: `git push origin feature/funcionalidade-incrivel`
+6. Abra um **Pull Request**
 
-## 📝 License
+## 📝 Licença
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
 ---
 
 <div align="center">
-  <sub>Built with ❤️ for better delivery metrics visualization</sub>
+  <sub>Construído com ❤️ para aprendizado de métricas de entrega</sub>
 </div>
