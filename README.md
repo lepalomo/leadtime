@@ -36,7 +36,7 @@
 
 ```bash
 # Clone o repositório
-git clone https://github.com/SEU_USUARIO/leadtime.git
+git clone https://github.com/lepalomo/leadtime.git
 
 # Navegue até o diretório do projeto
 cd leadtime/slides-app
