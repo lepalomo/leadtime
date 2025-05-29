@@ -2,7 +2,6 @@
 
 <div align="center">
 
-![Leadtime](https://img.shields.io/badge/Leadtime-Visualização-blue)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-4-3178C6?logo=typescript)
 ![Vite](https://img.shields.io/badge/Vite-Latest-646CFF?logo=vite)
